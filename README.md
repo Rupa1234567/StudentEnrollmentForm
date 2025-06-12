@@ -8,7 +8,7 @@ The Student Enrollment Form is a web-based application that allows users to add 
 This project is built using HTML, JavaScript, jQuery, and uses JsonPowerDB as the backend database.
 JsonPowerDB allows seamless data handling through RESTful API calls, eliminating the need for complex server-side logic. It is perfect for simple form-based applications and quick data storage solutions.
 
-Benefits of using JsonPowerDB
+BENEFITS OF USING JsonPowerDB
 
 Schema-free: No need to define a strict structure for your data.
 
@@ -22,7 +22,7 @@ Secure Access: Uses token-based authentication.
 
 Ideal for Learning & Prototyping: Great for students, educators, and small projects.
 
-Release History
+RELEASE HISTORY
 
 v1.0 – June 2025
 

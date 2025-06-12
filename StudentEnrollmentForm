@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Enrollment Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://login2explore.com/jpdb/resources/js/JPDBCommon.js"></script>
+</head>
+<body>
+<h2>Student Enrollment Form</h2>
+<form id="studentForm">
+    Roll No: <input type="text" id="rollNo"><br><br>
+    Full Name: <input type="text" id="fullName" disabled><br><br>
+    Class: <input type="text" id="className" disabled><br><br>
+    Birth Date: <input type="date" id="birthDate" disabled><br><br>
+    Address: <input type="text" id="address" disabled><br><br>
+    Enrollment Date: <input type="date" id="enrollDate" disabled><br><br>
+    <button type="button" id="saveBtn" disabled>Save</button>
+    <button type="button" id="updateBtn" disabled>Update</button>
+    <button type="button" id="resetBtn">Reset</button>
+</form>
+
+<script>
+    const dbName = "SCHOOL-DB";
+    const relName = "STUDENT-TABLE";
+    const connToken = "90934573|-31949213004737542|90956611";
+
+    function resetForm() {
+        $("#studentForm")[0].reset();
+        $("#rollNo").prop("disabled", false);
+        $("#fullName, #className, #birthDate, #address, #enrollDate").prop("disabled", true);
+        $("#saveBtn, #updateBtn").prop("disabled", true);
+        $("#rollNo").focus();
+    }
+
+    function validateData() {
+        return ["rollNo", "fullName", "className", "birthDate", "address", "enrollDate"].every(id => $(`#${id}`).val().trim() !== "");
+    }
+
+    function fillData(data) {
+        $("#fullName").val(data.fullName);
+        $("#className").val(data.class);
+        $("#birthDate").val(data.birthDate);
+        $("#address").val(data.address);
+        $("#enrollDate").val(data.enrollDate);
+    }
+
+    $(document).ready(() => {
+        resetForm();
+
+        $("#rollNo").on("change", function () {
+            const rollNo = $(this).val().trim();
+            if (rollNo === "") return resetForm();
+            const getReq = createGET_BY_KEYRequest(connToken, dbName, relName, JSON.stringify({ rollNo }));
+            jQuery.ajaxSetup({ async: false });
+            const res = executeCommandAtGivenBaseUrl(getReq, "https://login2explore.com", "/api/irl");
+            jQuery.ajaxSetup({ async: true });
+
+            if (res.status === 400) {
+                $("#fullName, #className, #birthDate, #address, #enrollDate").prop("disabled", false);
+                $("#saveBtn").prop("disabled", false);
+                $("#rollNo").prop("disabled", true);
+                $("#fullName").focus();
+            } else if (res.status === 200) {
+                const data = JSON.parse(res.data).record;
+                fillData(data);
+                $("#rollNo").prop("disabled", true);
+                $("#fullName, #className, #birthDate, #address, #enrollDate").prop("disabled", false);
+                $("#updateBtn").prop("disabled", true);
+                setTimeout(() => $("#updateBtn").prop("disabled", false), 300);
+            }
+        });
+
+        $("#saveBtn").click(() => {
+            if (!validateData()) return alert("Please fill all fields");
+            const data = {
+                rollNo: $("#rollNo").val().trim(),
+                fullName: $("#fullName").val().trim(),
+                class: $("#className").val().trim(),
+                birthDate: $("#birthDate").val().trim(),
+                address: $("#address").val().trim(),
+                enrollDate: $("#enrollDate").val().trim()
+            };
+            const putReq = createPUTRequest(connToken, JSON.stringify(data), dbName, relName);
+            jQuery.ajaxSetup({ async: false });
+            executeCommandAtGivenBaseUrl(putReq, "https://login2explore.com", "/api/iml");
+            jQuery.ajaxSetup({ async: true });
+            alert("Record saved");
+            resetForm();
+        });
+
+        $("#updateBtn").click(() => {
+            if (!validateData()) return alert("Please fill all fields");
+            const data = {
+                rollNo: $("#rollNo").val().trim(),
+                fullName: $("#fullName").val().trim(),
+                class: $("#className").val().trim(),
+                birthDate: $("#birthDate").val().trim(),
+                address: $("#address").val().trim(),
+                enrollDate: $("#enrollDate").val().trim()
+            };
+            const updateReq = createUPDATERecordRequest(connToken, JSON.stringify(data), dbName, relName, "rollNo", $("#rollNo").val().trim());
+            jQuery.ajaxSetup({ async: false });
+            executeCommandAtGivenBaseUrl(updateReq, "https://login2explore.com", "/api/iml");
+            jQuery.ajaxSetup({ async: true });
+            alert("Record updated");
+            resetForm();
+        });
+
+        $("#resetBtn").click(resetForm);
+    });
+</script>
+</body>
+</html>
